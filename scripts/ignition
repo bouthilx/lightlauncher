@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+
+import argparse
+
+def get_range(nb,item_range):
+    if item_range:
+        if item_range[1]==-1:
+            item_range[1] = nb
+        assert item_range[0] < item_range[1]
+        return xrange(*item_range)
+    else:
+        return xrange(0,nb)
+
+def main():
+    parser = argparse.ArgumentParser(description="""
+        A lightweight Pylearn2 job launcher.
+        Helps for extensive and flexible hyper-parameter search and for 
+        results analysis""")
+
+    subparsers = parser.add_subparsers(dest='command')
+
+    parser_run = subparsers.add_parser('launch', help="""
+        launch jobs based on template and hyper-parameter configurations
+        """)
+
+    parser_gen = subparsers.add_parser('generate', help="""
+        generate yaml files for further training jobs
+        """)
+
+    for subparser in [parser_run,parser_gen]:
+        subparser.add_argument('-o','--out',default='test.yaml',help="""
+            Basename for yaml files generated (default=test.yaml)
+            """)
+
+        subparser.add_argument('-t','--template',required=True,help="""
+            Template yaml file path
+            """)
+
+        subparser.add_argument('-p','--hparams',required=True,help="""
+            Hyper-parameters configuration file path
+            """)
+
+        subparser.add_argument('-f','--force',action='store_true',help="""
+            If true, overrides existing output yaml files 
+            """)
+
+        subparser.add_argument('-r','--range',nargs=2,type=int,help="""
+            Subrange of files to execute [min,max]
+            """)
+
+    parser_run.add_argument('-c','--clear',action='store_true',help="""
+        If true, Clear yaml files when jobs are done
+        """)
+
+    parser_plot = subparsers.add_parser('plot', help="""
+        plot curves of given Pylearn2 channels based on time, epochs or visited 
+        examples
+        """)
+
+    parser_plot.add_argument('-o','--out',default=None, help="""
+        file to save plot
+        """)
+
+    parser_plot.add_argument('-x','--x-axis',default='epochs',
+        choices=['epochs','seconds','minutes','hours','examples','batch'],
+        help="""
+        X-axis (default=epochs)
+        """)
+
+    parser_plot.add_argument('-r','--range',nargs=2,type=int,help="""
+        Subrange of models to include [min,max]
+        """)
+
+    parser_plot.add_argument('-c','--channels',nargs='+',help="""
+        Pylearn2 channels plotted for each model
+        """)
+
+    parser_plot.add_argument('dir',default='.',help="""
+        Directory where to load models (default=.)
+        """)
+
+    options = parser.parse_args()
+    print options
+
+    if options.command=='launch':
+        print "launch"
+    elif options.command=='generate':
+        print "generate"
+    elif options.command=='plot':
+        print "plot"
+    else:
+        raise ValueError('Invalid command : %s' % options['command'])
+
+if __name__ == "__main__":
+    main()
